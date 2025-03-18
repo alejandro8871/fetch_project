@@ -50,18 +50,6 @@ class FetchRepositoryTest {
     }
 
     @Test
-    fun `test fetchHiring success with empty response`() = runTest {
-        // Arrange: Mock an empty list response
-        coEvery { fetchService.fetchHiring() } returns emptyList()
-
-        // Act: Call fetchHiring
-        val result = fetchRepository.fetchHiring()
-
-        // Assert: Verify that the result is Empty
-        assertTrue(result is FetchRepository.Result.Empty)
-    }
-
-    @Test
     fun `test fetchHiring error scenario`() = runTest {
         val exception = Exception("Network Error")
         coEvery { fetchService.fetchHiring() } throws exception

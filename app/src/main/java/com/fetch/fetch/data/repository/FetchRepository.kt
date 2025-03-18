@@ -16,7 +16,6 @@ class FetchRepository @Inject constructor(
     sealed class Result {
         data class Success(val data: List<Hiring>) : Result()
         data class Error(val exception: Exception) : Result()
-        object Empty : Result()
     }
 
 
@@ -29,12 +28,7 @@ class FetchRepository @Inject constructor(
                         .thenBy { it.name?.extractNumber() }
                 )
 
-            // If the response is empty, return Empty state
-            if (response.isEmpty()) {
-                Result.Empty
-            } else {
-                Result.Success(response)
-            }
+            Result.Success(response)
         } catch (e: Exception) {
             // Log the error properly
             logger.e("FetchRepository", "Network Error: ${e.message}", e)

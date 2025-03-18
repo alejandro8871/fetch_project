@@ -30,51 +30,54 @@ class HomeViewModel @Inject constructor(
 
     private fun fetchNewHiring() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                val cachedItems = roomRepository.getFetchItems()
+            try {
+                withContext(Dispatchers.IO) {
+                    val cachedItems = roomRepository.getFetchItems()
 
-                // If cache is not empty, use the cached data
+                    // If cache is not empty, use the cached data
+                    if (cachedItems.isNotEmpty()) {
+                        _fetchHiring.value = HiringUiState.Success(cachedItems)
+                    }
+                }
+                // First, check if we have data in the local cache
+                when (val result = fetchRepository.fetchHiring()) {
+                    is FetchRepository.Result.Success -> {
+                        // If the response is successful, update UI state and save data to the room database
+                        if (result.data.isNotEmpty()) {
+                            withContext(Dispatchers.IO) {
+                                roomRepository.cleanDatabase()  // Clean Room database
+                                roomRepository.insertAll(result.data)  // Insert data into Room
+                            }
+                        }
+                        _fetchHiring.value = HiringUiState.Success(result.data)
+                    }
+
+                    is FetchRepository.Result.Error -> {
+                        // If there is an error, propagate the error message to the UI
+                        logger.e(
+                            "HomeViewModel",
+                            "Error fetching hiring: ${result.exception.message}",
+                            result.exception
+                        )
+                        val cachedItems = roomRepository.getFetchItems()
+                        if (cachedItems.isNotEmpty()) {
+                            _fetchHiring.value = HiringUiState.Success(cachedItems)
+                        } else {
+                            _fetchHiring.value =
+                                HiringUiState.Error("Error fetching hiring: ${result.exception.message}")
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                // In case of an exception, show cached data if available
+                _fetchHiring.value = HiringUiState.Error(e.localizedMessage ?: "Unknown error")
+                val cachedItems = roomRepository.getFetchItems()
                 if (cachedItems.isNotEmpty()) {
                     _fetchHiring.value = HiringUiState.Success(cachedItems)
                 }
             }
 
 
-            // First, check if we have data in the local cache
-            when (val result = fetchRepository.fetchHiring()) {
-                is FetchRepository.Result.Success -> {
-                    // If the response is successful, update UI state and save data to the room database
-                    if (result.data.isNotEmpty()) {
-                        withContext(Dispatchers.IO) {
-                            roomRepository.cleanDatabase()  // Clean Room database
-                            roomRepository.insertAll(result.data)  // Insert data into Room
-                        }
-                    }
-                    _fetchHiring.value = HiringUiState.Success(result.data)
-                }
-
-                is FetchRepository.Result.Error -> {
-                    // If there is an error, propagate the error message to the UI
-                    _fetchHiring.value =
-                        HiringUiState.Error(result.exception.localizedMessage ?: "Unknown error")
-                    logger.e(
-                        "HomeViewModel",
-                        "Error fetching hiring: ${result.exception.message}",
-                        result.exception
-                    )
-                }
-
-                is FetchRepository.Result.Empty -> {
-                    // If no data is fetched, propagate empty state
-                    withContext(Dispatchers.IO) {
-                        var cachedData = roomRepository.getFetchItems()
-                        if (cachedData.isNotEmpty()) _fetchHiring.value =
-                            HiringUiState.Success(cachedData)
-                        else _fetchHiring.value = HiringUiState.Error("Empty List")
-                        logger.e("HomeViewModel", "Empty List")
-                    }
-                }
-            }
         }
     }
 }
