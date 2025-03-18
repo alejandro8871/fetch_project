@@ -9,7 +9,7 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-object LoggerModule {
+internal object LoggerModule {
 
     @Provides
     fun provideLogger(): Logger {

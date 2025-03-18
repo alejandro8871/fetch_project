@@ -11,8 +11,8 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class NetworkModule {
-    val url = "https://fetch-hiring.s3.amazonaws.com/"
+internal object NetworkModule {
+    const val url = "https://fetch-hiring.s3.amazonaws.com/"
 
     @Provides
     @Singleton
