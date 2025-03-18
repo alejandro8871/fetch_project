@@ -3,7 +3,6 @@ package com.fetch.fetch.ui.view
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,7 +35,7 @@ import com.fetch.fetch.data.model.Hiring
 import com.fetch.fetch.data.remote.HiringUiState
 
 @Composable
-fun HomeScreen(paddingValues: PaddingValues, viewModel: HomeViewModel = hiltViewModel()) {
+fun HomeScreen(modifier: Modifier, viewModel: HomeViewModel = hiltViewModel()) {
     val fetchUiState by viewModel.fetchHiring.collectAsStateWithLifecycle()
     val visibility = remember { mutableStateMapOf<Int, Boolean>() }
 
@@ -58,8 +57,7 @@ fun HomeScreen(paddingValues: PaddingValues, viewModel: HomeViewModel = hiltView
             }
             LazyColumn(
                 state = listState,
-                modifier = Modifier
-                    .padding(paddingValues)
+                modifier = modifier
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
