@@ -1,5 +1,6 @@
 package com.fetch.fetch.ui.view
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,12 +11,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +38,7 @@ import com.fetch.fetch.data.remote.HiringUiState
 @Composable
 fun HomeScreen(paddingValues: PaddingValues, viewModel: HomeViewModel = hiltViewModel()) {
     val fetchUiState by viewModel.fetchHiring.collectAsStateWithLifecycle()
+    val visibility = remember { mutableStateMapOf<Int, Boolean>() }
 
     // Preserve scroll position
     val listState = rememberLazyListState()
@@ -58,15 +65,31 @@ fun HomeScreen(paddingValues: PaddingValues, viewModel: HomeViewModel = hiltView
             ) {
                 sortedItems.forEach { (listId, items) ->
                     item {
-                        Text(
-                            text = "List ID: $listId",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
-                            modifier = Modifier.padding(8.dp)
-                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    visibility[listId] = !(visibility[listId] ?: false)
+                                }
+                                .padding(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "List ID - $listId",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Icon(
+                                imageVector = if (visibility[listId] == true) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                contentDescription = "Expand/Collapse"
+                            )
+                        }
                     }
-                    items(items.size, key = { items[it].id }) {
-                        HiringItem(items[it])
+                    if (visibility[listId] == true) {
+                        items(items.size, key = { items[it].id }) {
+                            HiringItem(items[it])
+                        }
                     }
                 }
             }
@@ -98,9 +121,11 @@ fun HiringItem(item: Hiring) {
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = item.name, fontSize = 14.sp, modifier = Modifier.weight(1f)
-            )
+            item.name?.let {
+                Text(
+                    text = it, fontSize = 14.sp, modifier = Modifier.weight(1f)
+                )
+            }
         }
     }
 }

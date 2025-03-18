@@ -70,4 +70,10 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Mockito for mocking dependencies
+    testImplementation (libs.kotlinx.coroutines.test)
+    testImplementation (libs.junit.jupiter.api)
+    testImplementation (libs.junit.jupiter.engine)
+    testImplementation(libs.mockk.v1135) // MockK supports Java 21
 }

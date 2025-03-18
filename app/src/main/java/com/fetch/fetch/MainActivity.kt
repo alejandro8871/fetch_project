@@ -9,7 +9,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.fetch.fetch.ui.theme.FetchTheme
 import com.fetch.fetch.ui.view.HomeScreen
-import dagger.hilt.EntryPoint
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
